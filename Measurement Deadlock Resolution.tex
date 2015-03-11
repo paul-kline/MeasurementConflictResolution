@@ -4,6 +4,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{pgf}
+\usepackage{comment}
 \author{Paul Kline}
 \begin{document}
 \title{Measurement Deadlock Resolution}
@@ -70,19 +71,69 @@ We want to show that
 \begin{center}
 $a_1 = a_2$  iff $(m_1 = m_{1E}) \land (m_2 = m_{2E})$
 \end{center}
-Under our cryptographic assumptions,\\ since $a_1 = HASH(n_1,n_2')$ and $a_2 = HASH(n_1',n_2)$, then \\ $a_1 = a_2$ iff $(n_1 = n_1') \land (n_2 = n_2')$
+Therfore we will show 
+\begin{align*}
+ (a_1 = a_2) \Longrightarrow (m_1 = m_{1E}) \land (m_2 = m_{2E})\\
+ and \\
+ (m_1 = m_{1E}) \land (m_2 = m_{2E}) \Longrightarrow (a_1 = a_2)
+\end{align*}
+\textbf{Proof of $ (m_1 = m_{1E}) \land (m_2 = m_{2E}) \Longrightarrow (a_1 = a_2)$:}\\
+Recall $n_1' = \frac {m_1n_1} {m_{1E}}$. Therefore it is clear to see that if $m_1 = m_{1E}$, then $n_1 = n_1'$. \\
+Similarly, recall $n_2' = \frac{m_2n_1'n_2}{(m_{2E})n_1}$. \\
+We have already shown that $n_1 = n_1'$ and we are given that $m_2 = m_{2E}$.\\
+Therefore it shows that $n_2 = n_2'$ and therefore the hashes of $(n_1,n_2') = (n_1',n_2)$\\
 
+\textbf{Proof of $ (a_1 = a_2) \Longrightarrow (m_1 = m_{1E}) \land (m_2 = m_{2E})$:}\\
+Note:\\
 \begin{align*}
-&a_1 = n_1 + n_2' &&a_2 = n_1' + n_2 \\
-&a_1 = n_1 + \frac{p_2}{(m_{2E})n_1} &&a_2 = \frac{p_1}{m_{1E}} + n_2 \\
+&a_1 = \#(n_1, n_2') &&a_2 = \#(n_1', n_2) \\
+&a_1 = \#(n_1, \frac{p_2}{(m_{2E})n_1}) &&a_2 = \#(\frac{p_1}{m_{1E}}, n_2) \\
 \\
-&a_1 = n_1 + \frac{m_2n_1'n_2}{(m_{2E})n_1} &&a_2 = \frac{m_1n_1}{m_{1E}} + n_2
+&a_1 = \#(n_1, \frac{m_2n_1'n_2}{(m_{2E})n_1}) &&a_2 = \#(\frac{m_1n_1}{m_{1E}},  n_2)
 \end{align*}
-We are interested when these two equations are equal.
+We are given $a_1 = a_2 $. That is,
 \begin{align*}
-n_1 + \frac{m_2n_1'n_2}{(m_{2E})n_1} = \frac{m_1n_1}{m_{1E}} + n_2
+\#(n_1, \frac{m_2n_1'n_2}{(m_{2E})n_1}) = \#(\frac{m_1n_1}{m_{1E}}, n_2)
 \end{align*}
+Note under our cryptographic assumption of hashes, that\\ 
+since $a_1 = HASH(n_1,n_2')$ and $a_2 = HASH(n_1',n_2)$, then \\ 
+$a_1 = a_2$ \textit{iff} $(n_1 = n_1') \land (n_2 = n_2')$
+Therefore we know
+\begin{align*}
+n_1 = \frac{m_1n_1}{m_{1E}} && n_2 = \frac{m_2n_1'n_2}{(m_{2E})n_1}
+\end{align*}
+It shows that the only solution to the left side equation (assuming no 0 values) is when $m_1 = m_{1E}$.\\
+Recall the implication derived previously: $(m_1 = m_{1E}) \Longrightarrow (n_1' = n_1)$. This gives us 
+\begin{equation*}
+n_2 = \frac{m_2n_2}{(m_{2E})}
+\end{equation*}
+Which is only true when $m_2 = m_{2E}$ (again assuming no 0 values).\\
+Therefore,
+\begin{equation}
+a_1 = a_2 \Longleftrightarrow (m_1 = m_{1E}) \land (m_2 = m_{2E})
+\end{equation}
+
+Note that we do have a couple of requirements for this method of resolution.
+\begin{enumerate}
+\item Measurements must be non-zero
+\item The nonces generated must not be restricted to integers. Otherwise information can be revealed ``too soon"--i.e. when $B$ calculates $n_1'$, $B$ would know correctness by checking if the division gives an integer solution or not. 
+\end{enumerate} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{comment}
 We also have some implications to keep in mind.
+
 \begin{align*}
 &(m_1 = m_{1E}) \Longrightarrow (n_1' = n_1),\\
 &(m_2 = m_{2E}) \land (n_1 = n_1') \Longrightarrow (n_2' = n_2)\\
@@ -94,7 +145,11 @@ This is all well and good, but what we really want to show is
 \begin{align*}
 &(m_1 = m_{1E}) \land (m_2 = m_{2E}) \Longleftrightarrow (a_1 = a_2) 
 \end{align*}
-If $B$ does not get the measurement expected ($m_{1E}$) then $n_1' \neq n_1$. Then even if $m_{2E} = m_2$, $n_2' \neq n_2$. It follows that $a_1 \neq a_2$ and the decryption check will fail.   both parties abide by their privacy policy for one. either party has broken their privacy policy for one, and $n_1$ 
+If $B$ does not get the measurement expected ($m_{1E}$) then $n_1' \neq n_1$. Then even if $m_{2E} = m_2$, $n_2' \neq n_2$. It follows that $a_1 \neq a_2$ and the decryption check will fail.   both parties abide by their privacy policy for one. either party has broken their privacy policy for one, and $n_1$.\\
+Therefore 
+
+\end{comment}
+
 
 
  
